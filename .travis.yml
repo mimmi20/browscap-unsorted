@@ -1,0 +1,26 @@
+language: php
+sudo: false
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+  - 5.6
+  - 7.0
+  - 7.1
+  - 7.2
+  - nightly
+
+cache:
+  directories:
+  - $TRAVIS_BUILD_DIR/resources
+
+before_script:
+  - .travis-scripts/cache-browscap.sh
+  - travis_retry composer self-update
+  - travis_retry composer install -o --prefer-source
+
+script:
+  - php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --verbose --exclude-group compare-with-native-function --coverage-text --coverage-clover=coverage.clover
+  - php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --verbose --group compare-with-native-function
+
