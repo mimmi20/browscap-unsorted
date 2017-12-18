@@ -1,4 +1,5 @@
 language: php
+dist: trusty
 sudo: false
 
 php:
@@ -11,6 +12,8 @@ php:
   - 7.2
   - nightly
 
+os: linux
+
 cache:
   directories:
   - $TRAVIS_BUILD_DIR/resources
@@ -20,7 +23,16 @@ before_script:
   - travis_retry composer self-update
   - travis_retry composer install -o --prefer-source
 
-script:
-  - php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --verbose --exclude-group compare-with-native-function --coverage-text --coverage-clover=coverage.clover
-  - php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --verbose --group compare-with-native-function
+script: - php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --verbose --exclude-group compare-with-native-function --coverage-text --coverage-clover=coverage.clover
 
+jobs:
+  fast_finish: true
+  allow_failures:
+    - php: nightly
+  include:
+    - php: 5.3
+      dist: precise
+
+    - stage: compare with native function
+      php: 7.1
+      script: php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --verbose --group compare-with-native-function
