@@ -1,5 +1,5 @@
 {
-  "name": "browscap/browscap-php",
+  "name": "browscap/browscap-php-unsorted",
   "type": "library",
   "description": "Standalone replacement for php's native get_browser() function",
   "keywords": [
@@ -8,7 +8,7 @@
     "capabilities",
     "user agent"
   ],
-  "homepage": "https://github.com/browscap/browscap-php",
+  "homepage": "https://github.com/browscap/browscap-unsorted",
   "license": "MIT",
   "authors": [
     {
@@ -25,8 +25,8 @@
     }
   ],
   "support": {
-    "issues": "https://github.com/browscap/browscap-php/issues",
-    "source": "https://github.com/browscap/browscap-php"
+    "issues": "https://github.com/browscap/browscap-unsorted/issues",
+    "source": "https://github.com/browscap/browscap-unsorted"
   },
   "require": {
     "php": ">=5.3.0"
