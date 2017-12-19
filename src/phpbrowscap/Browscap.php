@@ -172,18 +172,18 @@ class Browscap
      *
      * @var bool
      */
-    protected $_cacheLoaded = false;
+    private $_cacheLoaded = false;
 
     /**
      * Where to store the value of the included PHP cache file
      *
      * @var array
      */
-    protected $_userAgents = array();
-    protected $_browsers = array();
-    protected $_patterns = array();
-    protected $_properties = array();
-    protected $_source_version;
+    private $_userAgents = array();
+    private $_browsers = array();
+    private $_patterns = array();
+    private $_properties = array();
+    private $_source_version;
 
     /**
      * An associative array of associative arrays in the format
@@ -195,7 +195,7 @@ class Browscap
      * @see http://www.php.net/manual/en/function.stream-context-create.php
      * @var array
      */
-    protected $_streamContextOptions = array();
+    private $_streamContextOptions = array();
 
     /**
      * A valid context resource created with stream_context_create().
@@ -203,7 +203,7 @@ class Browscap
      * @see http://www.php.net/manual/en/function.stream-context-create.php
      * @var resource
      */
-    protected $_streamContext = null;
+    private $_streamContext = null;
 
     /**
      * Constructor class, checks for the existence of (and loads) the cache and
@@ -574,7 +574,6 @@ class Browscap
 
         $iniContent = file_get_contents($ini_path);
 
-        //$this->createCacheOldWay($iniContent);
         $this->createCacheNewWay($iniContent);
 
         // Write out new cache file
@@ -615,100 +614,10 @@ class Browscap
      * creates the cache content
      *
      * @param string $iniContent The content of the downloaded ini file
-     * @param bool   $actLikeNewVersion
-     */
-    protected function createCacheOldWay($iniContent, $actLikeNewVersion = false)
-    {
-        $browsers = parse_ini_string($iniContent, true, INI_SCANNER_RAW);
-
-        if ($actLikeNewVersion) {
-            $this->_source_version = (int) $browsers[self::BROWSCAP_VERSION_KEY]['Version'];
-        } else {
-            $this->_source_version = $browsers[self::BROWSCAP_VERSION_KEY]['Version'];
-        }
-
-        unset($browsers[self::BROWSCAP_VERSION_KEY]);
-
-        if (!$actLikeNewVersion) {
-            unset($browsers['DefaultProperties']['RenderingEngine_Description']);
-        }
-
-        $this->_properties = array_keys($browsers['DefaultProperties']);
-
-        array_unshift(
-            $this->_properties,
-            'browser_name',
-            'browser_name_regex',
-            'browser_name_pattern',
-            'Parent'
-        );
-
-        $tmpUserAgents = array_keys($browsers);
-
-        usort($tmpUserAgents, array($this, 'compareBcStrings'));
-
-        $userAgentsKeys = array_flip($tmpUserAgents);
-        $propertiesKeys = array_flip($this->_properties);
-        $tmpPatterns    = array();
-
-        foreach ($tmpUserAgents as $i => $userAgent) {
-            $properties = $browsers[$userAgent];
-
-            if (empty($properties['Comment'])
-                || false !== strpos($userAgent, '*')
-                || false !== strpos($userAgent, '?')
-            ) {
-                $pattern = $this->_pregQuote($userAgent);
-
-                $countMatches = preg_match_all(
-                    self::REGEX_DELIMITER . '\d' . self::REGEX_DELIMITER,
-                    $pattern,
-                    $matches
-                );
-
-                if (!$countMatches) {
-                    $tmpPatterns[$pattern] = $i;
-                } else {
-                    $compressedPattern = preg_replace(
-                        self::REGEX_DELIMITER . '\d' . self::REGEX_DELIMITER,
-                        '(\d)',
-                        $pattern
-                    );
-
-                    if (!isset($tmpPatterns[$compressedPattern])) {
-                        $tmpPatterns[$compressedPattern] = array('first' => $pattern);
-                    }
-
-                    $tmpPatterns[$compressedPattern][$i] = $matches[0];
-                }
-            }
-
-            if (!empty($properties['Parent'])) {
-                $parent = $properties['Parent'];
-
-                $parentKey = $userAgentsKeys[$parent];
-
-                $properties['Parent']                 = $parentKey;
-                $this->_userAgents[$parentKey . '.0'] = $tmpUserAgents[$parentKey];
-            };
-
-            $this->_browsers[] = $this->resortProperties($properties, $propertiesKeys);
-        }
-
-        // reducing memory usage by unsetting $tmp_user_agents
-        unset($tmpUserAgents);
-
-        $this->_patterns = $this->deduplicatePattern($tmpPatterns);
-    }
-
-    /**
-     * creates the cache content
-     *
-     * @param string $iniContent The content of the downloaded ini file
      *
      * @throws \phpbrowscap\Exception
      */
-    protected function createCacheNewWay($iniContent)
+    private function createCacheNewWay($iniContent)
     {
         $patternPositions = array();
 
@@ -818,7 +727,7 @@ class Browscap
      *
      * @return array
      */
-    protected function resortProperties(array $properties, array $propertiesKeys)
+    private function resortProperties(array $properties, array $propertiesKeys)
     {
         $browser = array();
 
@@ -838,7 +747,7 @@ class Browscap
      *
      * @return array
      */
-    protected function deduplicatePattern(array $tmpPatterns)
+    private function deduplicatePattern(array $tmpPatterns)
     {
         $patternList = array();
 
@@ -863,39 +772,6 @@ class Browscap
     }
 
     /**
-     * @param string $a
-     * @param string $b
-     *
-     * @return int
-     */
-    protected function compareBcStrings($a, $b)
-    {
-        $a_len = strlen($a);
-        $b_len = strlen($b);
-
-        if ($a_len > $b_len) {
-            return -1;
-        }
-
-        if ($a_len < $b_len) {
-            return 1;
-        }
-
-        $a_len = strlen(str_replace(array('*', '?'), '', $a));
-        $b_len = strlen(str_replace(array('*', '?'), '', $b));
-
-        if ($a_len > $b_len) {
-            return -1;
-        }
-
-        if ($a_len < $b_len) {
-            return 1;
-        }
-
-        return 0;
-    }
-
-    /**
      * That looks complicated...
      *
      * All numbers are taken out into $matches, so we check if any of those numbers are identical
@@ -907,7 +783,7 @@ class Browscap
      *
      * @return array of $matches
      */
-    protected function deduplicateCompressionPattern($matches, &$pattern)
+    private function deduplicateCompressionPattern($matches, &$pattern)
     {
         $tmp_matches = $matches;
         $first_match = array_shift($tmp_matches);
@@ -947,7 +823,7 @@ class Browscap
      *
      * @return string
      */
-    protected function _pregQuote($user_agent)
+    private function _pregQuote($user_agent)
     {
         $pattern = preg_quote($user_agent, self::REGEX_DELIMITER);
 
@@ -968,7 +844,7 @@ class Browscap
      *
      * @return string
      */
-    protected function _pregUnQuote($pattern, $matches)
+    private function _pregUnQuote($pattern, $matches)
     {
         // list of escaped characters: http://www.php.net/manual/en/function.preg-quote.php
         // to properly unescape '?' which was changed to '.', I replace '\.' (real dot) with '\?',
@@ -1001,7 +877,7 @@ class Browscap
      *
      * @return boolean
      */
-    protected function _loadCache($cache_file)
+    private function _loadCache($cache_file)
     {
         $cache_version  = null;
         $source_version = null;
@@ -1034,7 +910,7 @@ class Browscap
      *
      * @return boolean False on write error, true otherwise
      */
-    protected function _buildCache()
+    private function _buildCache()
     {
         $content = sprintf(
             "<?php\n\$source_version=%s;\n\$cache_version=%s",
@@ -1064,7 +940,7 @@ class Browscap
      *
      * @return resource
      */
-    protected function _getStreamContext($recreate = false)
+    private function _getStreamContext($recreate = false)
     {
         if (!isset($this->_streamContext) || true === $recreate) {
             $this->_streamContext = stream_context_create($this->getStreamContextOptions());
@@ -1083,7 +959,7 @@ class Browscap
      * @throws Exception
      * @return bool if the ini file was updated
      */
-    protected function _getRemoteIniFile($url, $path)
+    private function _getRemoteIniFile($url, $path)
     {
         // local and remote file are the same, no update possible
         if ($url == $path) {
@@ -1157,7 +1033,7 @@ class Browscap
      *
      * @return mixed
      */
-    protected function sanitizeContent($content)
+    private function sanitizeContent($content)
     {
         // replace everything between opening and closing php and asp tags
         $content = preg_replace('/<[?%].*[?%]>/', '', $content);
@@ -1172,7 +1048,7 @@ class Browscap
      * @throws Exception
      * @return int the remote modification timestamp
      */
-    protected function _getRemoteMTime()
+    private function _getRemoteMTime()
     {
         $remote_datetime = $this->_getRemoteData($this->remoteVerUrl);
         $remote_tmstp    = strtotime($remote_datetime);
@@ -1190,7 +1066,7 @@ class Browscap
      * @throws Exception
      * @return int the local modification timestamp
      */
-    protected function _getLocalMTime()
+    private function _getLocalMTime()
     {
         if (!is_readable($this->localFile) || !is_file($this->localFile)) {
             throw new Exception('Local file is not readable');
@@ -1209,7 +1085,7 @@ class Browscap
      *
      * @return boolean False on write error, true otherwise
      */
-    protected function _array2string($array)
+    private function _array2string($array)
     {
         $content = "array(\n";
 
@@ -1246,7 +1122,7 @@ class Browscap
      *
      * @return string|false the name of function to use to retrieve the file or false if no methods are available
      */
-    protected function _getUpdateMethod()
+    private function _getUpdateMethod()
     {
         // Caches the result
         if ($this->updateMethod === null) {
@@ -1274,7 +1150,7 @@ class Browscap
      * @throws Exception
      * @return string the retrieved data
      */
-    protected function _getRemoteData($url)
+    private function _getRemoteData($url)
     {
         ini_set('user_agent', $this->_getUserAgent());
 
@@ -1387,7 +1263,7 @@ class Browscap
      *
      * @return string the formatted user agent
      */
-    protected function _getUserAgent()
+    private function _getUserAgent()
     {
         $ua = str_replace('%v', self::VERSION, $this->userAgent);
         $ua = str_replace('%m', $this->_getUpdateMethod(), $ua);
