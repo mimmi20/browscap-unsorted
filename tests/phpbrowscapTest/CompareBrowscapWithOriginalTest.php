@@ -9,7 +9,7 @@ use phpbrowscap\Browscap;
  *
  * @group compare-with-native-function
  */
-class CompareBrowscapWithOriginalTest extends \PHPUnit_Framework_TestCase
+class CompareBrowscapWithOriginalTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Browscap
@@ -76,6 +76,7 @@ class CompareBrowscapWithOriginalTest extends \PHPUnit_Framework_TestCase
 
     /**
      * This method is called before the first test of this test class is run.
+     * @throws \phpbrowscap\Exception
      */
     public static function setUpBeforeClass()
     {

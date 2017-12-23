@@ -36,7 +36,7 @@ use phpbrowscap\Browscap;
  * @license    http://www.opensource.org/licenses/MIT MIT License
  * @link       https://github.com/GaretJax/phpbrowscap/
  */
-class TestCase extends \PHPUnit_Framework_TestCase
+class TestCase extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var string

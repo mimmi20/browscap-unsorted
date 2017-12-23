@@ -3,7 +3,6 @@ dist: trusty
 sudo: false
 
 php:
-  - 5.3
   - 5.4
   - 5.5
   - 5.6
@@ -16,14 +15,28 @@ os: linux
 
 cache:
   directories:
-  - $TRAVIS_BUILD_DIR/resources
+    - $HOME/.composer/cache
+    - $TRAVIS_BUILD_DIR/resources
 
-before_script:
-  - .travis-scripts/cache-browscap.sh
+stages:
+  - composer validate
+  - check coding style
+  - static code analysis
+  - test
+  - test with coverage
+  - compare with native function
+
+before_install:
+  - stty cols 130
+  - phpenv config-rm xdebug.ini || echo "xdebug not available"
+  - echo 'opcache.enable=1' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - echo 'opcache.enable_cli=1' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - travis_retry composer self-update
-  - travis_retry composer install -o --prefer-source
+  - .travis-scripts/cache-browscap.sh
 
-script: - php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --verbose --exclude-group compare-with-native-function --coverage-text --coverage-clover=coverage.clover
+install: travis_retry composer install --optimize-autoloader --prefer-dist --no-progress --no-interaction -vv $COMPOSER_FLAGS
+
+script: - php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --columns 117 --verbose --no-coverage tests/phpbrowscapTest/BrowscapTest.php
 
 jobs:
   fast_finish: true
@@ -33,6 +46,29 @@ jobs:
     - php: 5.3
       dist: precise
 
+    - php: nightly
+      env: COMPOSER_FLAGS="--ignore-platform-reqs"
+
+    - stage: test with coverage
+      php: 7.1
+      before_install:
+        - stty cols 130
+        - echo 'opcache.enable=1' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+        - echo 'opcache.enable_cli=1' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+        - travis_retry composer self-update
+      script: php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --columns 117 --verbose tests/phpbrowscapTest/BrowscapTest.php --coverage-text --coverage-clover=coverage.clover
+      after_success:
+        - wget https://github.com/satooshi/php-coveralls/releases/download/v1.0.2/coveralls.phar && php -n coveralls.phar --verbose --coverage_clover=coverage.clover
+        - bash <(curl -s https://codecov.io/bash) -f coverage.clover -F phpunit
+
+    - stage: composer validate
+      php: 7.1
+      install: skip
+      script: composer validate --strict
+
     - stage: compare with native function
       php: 7.1
-      script: php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --verbose --group compare-with-native-function
+      script: php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --columns 117 --verbose tests/phpbrowscapTest/CompareBrowscapWithOriginalTest.php
+
+notifications:
+  email: false
