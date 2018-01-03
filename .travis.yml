@@ -36,7 +36,7 @@ before_install:
 
 install: travis_retry composer install --optimize-autoloader --prefer-dist --no-progress --no-interaction -vv $COMPOSER_FLAGS
 
-script: - php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --columns 117 --verbose --no-coverage tests/phpbrowscapTest/BrowscapTest.php
+script: php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --columns 117 --verbose --no-coverage tests/phpbrowscapTest/BrowscapTest.php
 
 jobs:
   fast_finish: true
