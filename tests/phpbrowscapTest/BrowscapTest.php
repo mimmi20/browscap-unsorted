@@ -41,20 +41,28 @@ class BrowscapTest
     extends TestCase
 {
     /**
-     * @expectedException \phpbrowscap\Exception
-     * @expectedExceptionMessage You have to provide a path to read/store the browscap cache file
+     * @return void
      */
     public function testConstructorFailsWithoutPath()
     {
+        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectExceptionMessage(
+            'You have to provide a path to read/store the browscap cache file'
+        );
+
         new Browscap();
     }
 
     /**
-     * @expectedException \phpbrowscap\Exception
-     * @expectedExceptionMessage You have to provide a path to read/store the browscap cache file
+     * @return void
      */
     public function testConstructorFailsWithNullPath()
     {
+        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectExceptionMessage(
+            'You have to provide a path to read/store the browscap cache file'
+        );
+
         new Browscap(null);
     }
 
@@ -65,10 +73,10 @@ class BrowscapTest
     {
         $path = '/abc/test';
 
-        $this->setExpectedException(
-            '\\phpbrowscap\\Exception',
-            'The cache path ' . $path
-            . ' is invalid. Are you sure that it exists and that you have permission to access it?'
+        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectExceptionMessage(
+            'The cache path '.$path
+            .' is invalid. Are you sure that it exists and that you have permission to access it?'
         );
 
         new Browscap($path);
@@ -159,11 +167,15 @@ class BrowscapTest
     }
 
     /**
-     * @expectedException \phpbrowscap\Exception
-     * @expectedExceptionMessage Local file is not readable
+     * @return void
      */
     public function testGetLocalMTimeFails()
     {
+        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectExceptionMessage(
+            'Local file is not readable'
+        );
+
         $cacheDir = $this->createCacheDir();
 
         $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
@@ -196,16 +208,23 @@ class BrowscapTest
     }
 
     /**
-     * @expectedException \phpbrowscap\Exception
-     * @expectedExceptionMessage Bad datetime format from http://browscap.org/version
+     * @return void
      */
     public function testGetRemoteMTimeFails()
     {
+        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectExceptionMessage(
+            'Bad datetime format from http://browscap.org/version'
+        );
+
         $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
         $method = $class->getMethod('_getRemoteMTime');
         $method->setAccessible(true);
 
-        $browscap = $this->getMock('\\phpbrowscap\\Browscap', array('_getRemoteData'), array(), '', false);
+        $browscap = $this->getMockBuilder(\phpbrowscap\Browscap::class)
+            ->setMethods(array('_getRemoteData'))
+            ->disableOriginalConstructor()
+            ->getMock();
         $browscap->expects(self::any())
                  ->method('_getRemoteData')
                  ->will(self::returnValue(null))
@@ -225,7 +244,10 @@ class BrowscapTest
 
         $expected = 'Mon, 29 Jul 2013 22:22:31 -0000';
 
-        $browscap = $this->getMock('\\phpbrowscap\\Browscap', array('_getRemoteData'), array(), '', false);
+        $browscap = $this->getMockBuilder(\phpbrowscap\Browscap::class)
+            ->setMethods(array('_getRemoteData'))
+            ->disableOriginalConstructor()
+            ->getMock();
         $browscap->expects(self::any())
                  ->method('_getRemoteData')
                  ->will(self::returnValue($expected))
@@ -358,53 +380,6 @@ class BrowscapTest
     }
 
     /**
-     * @dataProvider dataCompareBcStrings
-     */
-    public function testCompareBcStrings($a, $b, $expected)
-    {
-        $cacheDir = $this->createCacheDir();
-
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
-        $method = $class->getMethod('compareBcStrings');
-        $method->setAccessible(true);
-
-        $browscap = new Browscap($cacheDir);
-
-        self::assertSame($expected, $method->invoke($browscap, $a, $b));
-    }
-
-    public function dataCompareBcStrings()
-    {
-        return array(
-            array(
-                'Mozilla/?.0 (compatible; Ask Jeeves/Teoma*)',
-                'Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)',
-                1
-            ),
-            array(
-                'Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)',
-                'Mozilla/?.0 (compatible; Ask Jeeves/Teoma*)',
-                -1
-            ),
-            array(
-                'Mozilla/5.0 (Danger hiptop 3.*; U; rv:1.7.*) Gecko/*',
-                'Mozilla/5.0 (Danger hiptop 3.0; U; rv:1.7.*) Gecko/*',
-                1
-            ),
-            array(
-                'Mozilla/5.0 (Danger hiptop 3.0; U; rv:1.7.*) Gecko/*',
-                'Mozilla/5.0 (Danger hiptop 3.*; U; rv:1.7.*) Gecko/*',
-                -1
-            ),
-            array(
-                'Mozilla/5.0 (Danger hiptop 3.0; U; rv:1.7.*) Gecko/*',
-                'Mozilla/5.0 (Danger hiptop 3.0; U; rv:1.7.*) Gecko/*',
-                0
-            )
-        );
-    }
-
-    /**
      * @dataProvider dataSanitizeContent
      */
     public function testSanitizeContent($content, $expected)
@@ -472,95 +447,6 @@ Format=asp\'
 Type=',
             ),
         );
-    }
-
-    /**
-     * @dataProvider dataCreateCache
-     * @group        testParsing
-     *
-     * @param string $content
-     */
-    public function testCreateCache($content)
-    {
-        $cacheDir = $this->createCacheDir();
-
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
-        $method = $class->getMethod('createCacheOldWay');
-        $method->setAccessible(true);
-
-        $varProp = $class->getProperty('_properties');
-        $varProp->setAccessible(true);
-
-        $varBrow = $class->getProperty('_browsers');
-        $varBrow->setAccessible(true);
-
-        $varUas = $class->getProperty('_userAgents');
-        $varUas->setAccessible(true);
-
-        $varPatt = $class->getProperty('_patterns');
-        $varPatt->setAccessible(true);
-
-        $varVersion = $class->getProperty('_source_version');
-        $varVersion->setAccessible(true);
-
-        $browscap = new Browscap($cacheDir);
-
-        $varProp->setValue($browscap, array());
-        $varBrow->setValue($browscap, array());
-        $varUas->setValue($browscap, array());
-        $varPatt->setValue($browscap, array());
-        $varVersion->setValue($browscap, 0);
-
-        $method->invoke($browscap, $content, true);
-
-        $properties = $varProp->getValue($browscap);
-        $browsers   = $varBrow->getValue($browscap);
-        $userAgents = $varUas->getValue($browscap);
-        $patterns   = $varPatt->getValue($browscap);
-        $version    = (string) $varVersion->getValue($browscap);
-
-        $newMethod = $class->getMethod('createCacheNewWay');
-        $newMethod->setAccessible(true);
-
-        $varNewProp = $class->getProperty('_properties');
-        $varNewProp->setAccessible(true);
-
-        $varNewBrow = $class->getProperty('_browsers');
-        $varNewBrow->setAccessible(true);
-
-        $varNewUas = $class->getProperty('_userAgents');
-        $varNewUas->setAccessible(true);
-
-        $varNewPatt = $class->getProperty('_patterns');
-        $varNewPatt->setAccessible(true);
-
-        $varNewVersion = $class->getProperty('_source_version');
-        $varNewVersion->setAccessible(true);
-
-        $browscap = new Browscap($cacheDir);
-
-        $varNewProp->setValue($browscap, array());
-        $varNewBrow->setValue($browscap, array());
-        $varNewUas->setValue($browscap, array());
-        $varNewPatt->setValue($browscap, array());
-        $varNewVersion->setValue($browscap, 0);
-
-        $newMethod->invoke($browscap, $content);
-
-        $newVersion = (string) $varNewVersion->getValue($browscap);
-        self::assertSame($version, $newVersion);
-
-        $newProperties = $varNewProp->getValue($browscap);
-        self::assertSame($properties, $newProperties);
-
-        $newPatterns    = $varNewPatt->getValue($browscap);
-        self::assertCount(count($patterns), $newPatterns);
-
-        $newBrowsers = $varNewBrow->getValue($browscap);
-        self::assertCount(count($browsers), $newBrowsers);
-
-        $newUserAgents = $varNewUas->getValue($browscap);
-        self::assertCount(count($userAgents), $newUserAgents);
     }
 
     /**
