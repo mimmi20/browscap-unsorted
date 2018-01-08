@@ -45,7 +45,7 @@ class BrowscapTest
      */
     public function testConstructorFailsWithoutPath()
     {
-        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectException('\phpbrowscap\Exception');
         $this->expectExceptionMessage(
             'You have to provide a path to read/store the browscap cache file'
         );
@@ -58,7 +58,7 @@ class BrowscapTest
      */
     public function testConstructorFailsWithNullPath()
     {
-        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectException('\phpbrowscap\Exception');
         $this->expectExceptionMessage(
             'You have to provide a path to read/store the browscap cache file'
         );
@@ -73,7 +73,7 @@ class BrowscapTest
     {
         $path = '/abc/test';
 
-        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectException('\phpbrowscap\Exception');
         $this->expectExceptionMessage(
             'The cache path '.$path
             .' is invalid. Are you sure that it exists and that you have permission to access it?'
@@ -153,7 +153,7 @@ class BrowscapTest
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getStreamContext');
         $method->setAccessible(true);
 
@@ -171,14 +171,14 @@ class BrowscapTest
      */
     public function testGetLocalMTimeFails()
     {
-        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectException('\phpbrowscap\Exception');
         $this->expectExceptionMessage(
             'Local file is not readable'
         );
 
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getLocalMTime');
         $method->setAccessible(true);
 
@@ -194,7 +194,7 @@ class BrowscapTest
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getLocalMTime');
         $method->setAccessible(true);
 
@@ -212,16 +212,16 @@ class BrowscapTest
      */
     public function testGetRemoteMTimeFails()
     {
-        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectException('\phpbrowscap\Exception');
         $this->expectExceptionMessage(
             'Bad datetime format from http://browscap.org/version'
         );
 
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getRemoteMTime');
         $method->setAccessible(true);
 
-        $browscap = $this->getMockBuilder(\phpbrowscap\Browscap::class)
+        $browscap = $this->getMockBuilder('\phpbrowscap\Browscap')
             ->setMethods(array('_getRemoteData'))
             ->disableOriginalConstructor()
             ->getMock();
@@ -238,13 +238,13 @@ class BrowscapTest
      */
     public function testGetRemoteMTime()
     {
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getRemoteMTime');
         $method->setAccessible(true);
 
         $expected = 'Mon, 29 Jul 2013 22:22:31 -0000';
 
-        $browscap = $this->getMockBuilder(\phpbrowscap\Browscap::class)
+        $browscap = $this->getMockBuilder('\phpbrowscap\Browscap')
             ->setMethods(array('_getRemoteData'))
             ->disableOriginalConstructor()
             ->getMock();
@@ -265,7 +265,7 @@ class BrowscapTest
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_array2string');
         $method->setAccessible(true);
 
@@ -289,7 +289,7 @@ class BrowscapTest
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getUpdateMethod');
         $method->setAccessible(true);
 
@@ -308,7 +308,7 @@ class BrowscapTest
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getUpdateMethod');
         $method->setAccessible(true);
 
@@ -328,7 +328,7 @@ class BrowscapTest
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getUserAgent');
         $method->setAccessible(true);
 
@@ -346,7 +346,7 @@ class BrowscapTest
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_pregQuote');
         $method->setAccessible(true);
 
@@ -364,7 +364,7 @@ class BrowscapTest
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_pregUnQuote');
         $method->setAccessible(true);
 
@@ -386,7 +386,7 @@ class BrowscapTest
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('sanitizeContent');
         $method->setAccessible(true);
 
@@ -492,7 +492,7 @@ Type=',
     ) {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\\phpbrowscap\\Browscap');
+        $class  = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_buildCache');
         $method->setAccessible(true);
 

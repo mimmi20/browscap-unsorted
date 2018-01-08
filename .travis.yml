@@ -34,7 +34,7 @@ before_install:
   - travis_retry composer self-update
   - .travis-scripts/cache-browscap.sh
 
-install: travis_retry composer install --optimize-autoloader --prefer-dist --no-progress --no-interaction -vv $COMPOSER_FLAGS
+install: travis_retry composer update --optimize-autoloader --prefer-dist --prefer-stable --no-progress --no-interaction --no-suggest -vv $COMPOSER_FLAGS
 
 script: php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --columns 117 --verbose --no-coverage tests/phpbrowscapTest/BrowscapTest.php
 
