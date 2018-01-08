@@ -13,6 +13,10 @@ php:
 
 os: linux
 
+env:
+  - COMPOSER_FLAGS="--prefer-lowest"
+  - COMPOSER_FLAGS=""
+
 cache:
   directories:
     - $HOME/.composer/cache
