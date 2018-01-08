@@ -217,18 +217,18 @@ class BrowscapTest
             'Bad datetime format from http://browscap.org/version'
         );
 
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
-        $method = $class->getMethod('_getRemoteMTime');
-        $method->setAccessible(true);
-
         $browscap = $this->getMockBuilder('\phpbrowscap\Browscap')
             ->setMethods(array('_getRemoteData'))
             ->disableOriginalConstructor()
             ->getMock();
         $browscap->expects(self::any())
-                 ->method('_getRemoteData')
-                 ->will(self::returnValue(null))
+            ->method('_getRemoteData')
+            ->will(self::returnValue(null))
         ;
+
+        $class  = new ReflectionClass($browscap);
+        $method = $class->getMethod('_getRemoteMTime');
+        $method->setAccessible(true);
 
         $method->invoke($browscap);
     }
@@ -238,20 +238,20 @@ class BrowscapTest
      */
     public function testGetRemoteMTime()
     {
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
-        $method = $class->getMethod('_getRemoteMTime');
-        $method->setAccessible(true);
-
-        $expected = 'Mon, 29 Jul 2013 22:22:31 -0000';
+        $expected = 'Fri, 29 Dec 2017 23:06:30 +0000';
 
         $browscap = $this->getMockBuilder('\phpbrowscap\Browscap')
             ->setMethods(array('_getRemoteData'))
             ->disableOriginalConstructor()
             ->getMock();
         $browscap->expects(self::any())
-                 ->method('_getRemoteData')
-                 ->will(self::returnValue($expected))
+            ->method('_getRemoteData')
+            ->will(self::returnValue($expected))
         ;
+
+        $class  = new ReflectionClass($browscap);
+        $method = $class->getMethod('_getRemoteMTime');
+        $method->setAccessible(true);
 
         $mtime = $method->invoke($browscap);
 
