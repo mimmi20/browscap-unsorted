@@ -13,6 +13,10 @@ php:
 
 os: linux
 
+env:
+  - COMPOSER_FLAGS="--prefer-lowest"
+  - COMPOSER_FLAGS=""
+
 cache:
   directories:
     - $HOME/.composer/cache
@@ -20,11 +24,8 @@ cache:
 
 stages:
   - composer validate
-  - check coding style
-  - static code analysis
   - test
   - test with coverage
-  - compare with native function
 
 before_install:
   - stty cols 130
@@ -34,7 +35,7 @@ before_install:
   - travis_retry composer self-update
   - .travis-scripts/cache-browscap.sh
 
-install: travis_retry composer install --optimize-autoloader --prefer-dist --no-progress --no-interaction -vv $COMPOSER_FLAGS
+install: travis_retry composer update --optimize-autoloader --prefer-dist --prefer-stable --no-progress --no-interaction --no-suggest -vv $COMPOSER_FLAGS
 
 script: php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --columns 117 --verbose --no-coverage tests/phpbrowscapTest/BrowscapTest.php
 
@@ -45,6 +46,11 @@ jobs:
   include:
     - php: 5.3
       dist: precise
+      env: COMPOSER_FLAGS="--prefer-lowest"
+
+    - php: 5.3
+      dist: precise
+      env: COMPOSER_FLAGS=""
 
     - php: nightly
       env: COMPOSER_FLAGS="--ignore-platform-reqs"
@@ -65,10 +71,6 @@ jobs:
       php: 7.1
       install: skip
       script: composer validate --strict
-
-    - stage: compare with native function
-      php: 7.1
-      script: php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --columns 117 --verbose tests/phpbrowscapTest/CompareBrowscapWithOriginalTest.php
 
 notifications:
   email: false
