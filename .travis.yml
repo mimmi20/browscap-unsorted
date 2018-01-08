@@ -24,8 +24,6 @@ cache:
 
 stages:
   - composer validate
-  - check coding style
-  - static code analysis
   - test
   - test with coverage
   - compare with native function
@@ -49,6 +47,11 @@ jobs:
   include:
     - php: 5.3
       dist: precise
+      env: COMPOSER_FLAGS="--prefer-lowest"
+
+    - php: 5.3
+      dist: precise
+      env: COMPOSER_FLAGS=""
 
     - php: nightly
       env: COMPOSER_FLAGS="--ignore-platform-reqs"
