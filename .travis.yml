@@ -26,7 +26,6 @@ stages:
   - composer validate
   - test
   - test with coverage
-  - compare with native function
 
 before_install:
   - stty cols 130
@@ -72,10 +71,6 @@ jobs:
       php: 7.1
       install: skip
       script: composer validate --strict
-
-    - stage: compare with native function
-      php: 7.1
-      script: php -d browscap=$TRAVIS_BUILD_DIR/resources/browscap.ini vendor/bin/phpunit --colors --columns 117 --verbose tests/phpbrowscapTest/CompareBrowscapWithOriginalTest.php
 
 notifications:
   email: false
