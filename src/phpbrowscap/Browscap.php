@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace phpbrowscap;
 
@@ -40,9 +41,9 @@ class Browscap
     /**
      * Current version of the class.
      */
-    const VERSION = '2.1.1';
+    public const VERSION = '2.1.1';
 
-    const CACHE_FILE_VERSION = '2.1.0';
+    public const CACHE_FILE_VERSION = '2.1.0';
 
     /**
      * Different ways to access remote and local files.
@@ -52,10 +53,10 @@ class Browscap
      * UPDATE_CURL: Uses the cURL extension.
      * UPDATE_LOCAL: Updates from a local file (file_get_contents).
      */
-    const UPDATE_FOPEN = 'URL-wrapper';
-    const UPDATE_FSOCKOPEN = 'socket';
-    const UPDATE_CURL = 'cURL';
-    const UPDATE_LOCAL = 'local';
+    public const UPDATE_FOPEN = 'URL-wrapper';
+    public const UPDATE_FSOCKOPEN = 'socket';
+    public const UPDATE_CURL = 'cURL';
+    public const UPDATE_LOCAL = 'local';
 
     /**
      * Options for regex patterns.
@@ -63,27 +64,27 @@ class Browscap
      * REGEX_DELIMITER: Delimiter of all the regex patterns in the whole class.
      * REGEX_MODIFIERS: Regex modifiers.
      */
-    const REGEX_DELIMITER = '@';
-    const REGEX_MODIFIERS = 'i';
-    const COMPRESSION_PATTERN_START = '@';
-    const COMPRESSION_PATTERN_DELIMITER = '|';
+    public const REGEX_DELIMITER = '@';
+    public const REGEX_MODIFIERS = 'i';
+    public const COMPRESSION_PATTERN_START = '@';
+    public const COMPRESSION_PATTERN_DELIMITER = '|';
 
     /**
      * The values to quote in the ini file
      */
-    const VALUES_TO_QUOTE = 'Browser|Parent';
+    public const VALUES_TO_QUOTE = 'Browser|Parent';
 
-    const BROWSCAP_VERSION_KEY = 'GJK_Browscap_Version';
+    public const BROWSCAP_VERSION_KEY = 'GJK_Browscap_Version';
 
     /**
      * The headers to be sent for checking the version and requesting the file.
      */
-    const REQUEST_HEADERS = "GET %s HTTP/1.0\r\nHost: %s\r\nUser-Agent: %s\r\nConnection: Close\r\n\r\n";
+    public const REQUEST_HEADERS = "GET %s HTTP/1.0\r\nHost: %s\r\nUser-Agent: %s\r\nConnection: Close\r\n\r\n";
 
     /**
      * how many pattern should be checked at once in the first step
      */
-    const COUNT_PATTERN = 100;
+    public const COUNT_PATTERN = 100;
 
     /**
      * Options for auto update capabilities
@@ -178,10 +179,10 @@ class Browscap
      *
      * @var array
      */
-    protected $_userAgents = array();
-    protected $_browsers = array();
-    protected $_patterns = array();
-    protected $_properties = array();
+    protected $_userAgents = [];
+    protected $_browsers = [];
+    protected $_patterns = [];
+    protected $_properties = [];
     protected $_source_version;
 
     /**
@@ -195,7 +196,7 @@ class Browscap
      *
      * @var array
      */
-    protected $_streamContextOptions = array();
+    protected $_streamContextOptions = [];
 
     /**
      * A valid context resource created with stream_context_create().
@@ -309,7 +310,7 @@ class Browscap
                     touch($ini_file, time() - $this->updateInterval + $this->errorInterval);
                 } elseif ($this->silent) {
                     // Return an array if silent mode is active and the ini db doesn't exsist
-                    return array();
+                    return [];
                 }
 
                 if (!$this->silent) {
@@ -332,7 +333,7 @@ class Browscap
             }
         }
 
-        $browser = array();
+        $browser = [];
 
         $patterns = array_keys($this->_patterns);
         $chunks = array_chunk($patterns, self::COUNT_PATTERN);
@@ -348,7 +349,7 @@ class Browscap
 
             foreach ($chunk as $pattern) {
                 $patternToMatch = self::REGEX_DELIMITER . '^' . $pattern . '$' . self::REGEX_DELIMITER . 'i';
-                $matches = array();
+                $matches = [];
 
                 if (!preg_match($patternToMatch, $user_agent, $matches)) {
                     continue;
@@ -379,11 +380,11 @@ class Browscap
                     $simpleMatch = false;
                 }
 
-                $browser = array(
+                $browser = [
                     $user_agent, // Original useragent
                     trim(strtolower($pattern), self::REGEX_DELIMITER),
                     $this->_pregUnQuote($pattern, $simpleMatch ? false : $matches),
-                );
+                ];
 
                 $browser = $value = $browser + unserialize($this->_browsers[$key]);
 
@@ -401,7 +402,7 @@ class Browscap
         }
 
         // Add the keys for each property
-        $array = array();
+        $array = [];
         foreach ($browser as $key => $value) {
             if ('true' === $value) {
                 $value = true;
@@ -424,19 +425,19 @@ class Browscap
     /**
      * Load (auto-set) proxy settings from environment variables.
      */
-    public function autodetectProxySettings()
+    public function autodetectProxySettings() : void
     {
-        $wrappers = array('http', 'https', 'ftp');
+        $wrappers = ['http', 'https', 'ftp'];
 
         foreach ($wrappers as $wrapper) {
             $url = getenv($wrapper . '_proxy');
             if (!empty($url)) {
                 $params = array_merge(
-                    array(
+                    [
                         'port' => null,
                         'user' => null,
                         'pass' => null,
-                    ),
+                    ],
                     parse_url($url)
                 );
                 $this->addProxySettings($params['host'], $params['port'], $wrapper, $params['user'], $params['pass']);
@@ -457,13 +458,13 @@ class Browscap
      */
     public function addProxySettings($server, $port = 3128, $wrapper = 'http', $username = null, $password = null)
     {
-        $settings = array(
-            $wrapper => array(
+        $settings = [
+            $wrapper => [
                 'proxy' => sprintf('tcp://%s:%d', $server, $port),
                 'request_fulluri' => true,
                 'timeout' => $this->timeout,
-            ),
-        );
+            ],
+        ];
 
         // Proxy authentication (optional)
         if (isset($username, $password)) {
@@ -494,10 +495,10 @@ class Browscap
      */
     public function clearProxySettings($wrapper = null)
     {
-        $wrappers = isset($wrapper) ? array($wrapper) : array_keys($this->_streamContextOptions);
+        $wrappers = isset($wrapper) ? [$wrapper] : array_keys($this->_streamContextOptions);
 
-        $clearedWrappers = array();
-        $options = array('proxy', 'request_fulluri', 'header');
+        $clearedWrappers = [];
+        $options = ['proxy', 'request_fulluri', 'header'];
         foreach ($wrappers as $wrapper) {
             // remove wrapper options related to proxy settings
             if (isset($this->_streamContextOptions[$wrapper]['proxy'])) {
@@ -528,11 +529,11 @@ class Browscap
 
         if (empty($streamContextOptions)) {
             // set default context, including timeout
-            $streamContextOptions = array(
-                'http' => array(
+            $streamContextOptions = [
+                'http' => [
                     'timeout' => $this->timeout,
-                ),
-            );
+                ],
+            ];
         }
 
         return $streamContextOptions;
@@ -569,10 +570,10 @@ class Browscap
 
         $this->_getRemoteIniFile($url, $ini_path);
 
-        $this->_properties = array();
-        $this->_browsers = array();
-        $this->_userAgents = array();
-        $this->_patterns = array();
+        $this->_properties = [];
+        $this->_browsers = [];
+        $this->_userAgents = [];
+        $this->_patterns = [];
 
         $iniContent = file_get_contents($ini_path);
 
@@ -619,9 +620,9 @@ class Browscap
      *
      * @throws \phpbrowscap\Exception
      */
-    protected function createCacheNewWay($iniContent)
+    protected function createCacheNewWay($iniContent) : void
     {
-        $patternPositions = array();
+        $patternPositions = [];
 
         // get all patterns from the ini file in the correct order,
         // so that we can calculate with index number of the resulting array,
@@ -641,9 +642,9 @@ class Browscap
         // split the ini file into sections and save the data in one line with a hash of the belonging
         // pattern (filtered in the previous step)
         $iniParts = preg_split('/\[[^\r\n]+\]/', $iniContent);
-        $tmpPatterns = array();
-        $propertiesKeys = array();
-        $matches = array();
+        $tmpPatterns = [];
+        $propertiesKeys = [];
+        $matches = [];
 
         if (preg_match('/.*\[DefaultProperties\]([^[]*).*/', $iniContent, $matches)) {
             $properties = parse_ini_string($matches[1], true, INI_SCANNER_RAW);
@@ -663,7 +664,7 @@ class Browscap
 
         $key = $this->_pregQuote(self::BROWSCAP_VERSION_KEY);
         $this->_source_version = 0;
-        $matches = array();
+        $matches = [];
 
         if (preg_match('/\\.*[' . $key . '\\][^[]*Version=(\\d+)\\D.*/', $iniContent, $matches)) {
             if (isset($matches[1])) {
@@ -684,7 +685,7 @@ class Browscap
                 || false !== strpos($userAgent, '?')
             ) {
                 $pattern = $this->_pregQuote(strtolower($userAgent));
-                $matches = array();
+                $matches = [];
                 $i = $position - 1;
                 $countMatches = preg_match_all(
                     self::REGEX_DELIMITER . '\d' . self::REGEX_DELIMITER,
@@ -702,7 +703,7 @@ class Browscap
                     );
 
                     if (!isset($tmpPatterns[$compressedPattern])) {
-                        $tmpPatterns[$compressedPattern] = array('first' => $pattern);
+                        $tmpPatterns[$compressedPattern] = ['first' => $pattern];
                     }
 
                     $tmpPatterns[$compressedPattern][$i] = $matches[0];
@@ -731,7 +732,7 @@ class Browscap
      */
     protected function resortProperties(array $properties, array $propertiesKeys)
     {
-        $browser = array();
+        $browser = [];
 
         foreach ($properties as $propertyName => $propertyValue) {
             if (!isset($propertiesKeys[$propertyName])) {
@@ -751,7 +752,7 @@ class Browscap
      */
     protected function deduplicatePattern(array $tmpPatterns)
     {
-        $patternList = array();
+        $patternList = [];
 
         foreach ($tmpPatterns as $pattern => $patternData) {
             if (is_int($patternData)) {
@@ -789,7 +790,7 @@ class Browscap
     {
         $tmp_matches = $matches;
         $first_match = array_shift($tmp_matches);
-        $differences = array();
+        $differences = [];
 
         foreach ($tmp_matches as $some_match) {
             $differences += array_diff_assoc($first_match, $some_match);
@@ -797,7 +798,7 @@ class Browscap
 
         $identical = array_diff_key($first_match, $differences);
 
-        $prepared_matches = array();
+        $prepared_matches = [];
 
         foreach ($matches as $i => $some_match) {
             $key = self::COMPRESSION_PATTERN_START
@@ -832,8 +833,8 @@ class Browscap
         // the \\x replacement is a fix for "Der gro\xdfe BilderSauger 2.00u" user agent match
 
         return str_replace(
-            array('\*', '\?', '\\x'),
-            array('.*', '.', '\\\\x'),
+            ['\*', '\?', '\\x'],
+            ['.*', '.', '\\\\x'],
             $pattern
         );
     }
@@ -851,14 +852,14 @@ class Browscap
         // list of escaped characters: http://www.php.net/manual/en/function.preg-quote.php
         // to properly unescape '?' which was changed to '.', I replace '\.' (real dot) with '\?',
         // then change '.' to '?' and then '\?' to '.'.
-        $search = array(
+        $search = [
             '\\' . self::REGEX_DELIMITER, '\\.', '\\\\', '\\+', '\\[', '\\^', '\\]', '\\$', '\\(', '\\)', '\\{', '\\}',
             '\\=', '\\!', '\\<', '\\>', '\\|', '\\:', '\\-', '.*', '.', '\\?',
-        );
-        $replace = array(
+        ];
+        $replace = [
             self::REGEX_DELIMITER, '\\?', '\\', '+', '[', '^', ']', '$', '(', ')', '{', '}', '=', '!', '<', '>', '|',
             ':', '-', '*', '?', '.',
-        );
+        ];
 
         $result = substr(str_replace($search, $replace, $pattern), 2, -2);
 
@@ -883,10 +884,10 @@ class Browscap
     {
         $cache_version = null;
         $source_version = null;
-        $browsers = array();
-        $userAgents = array();
-        $patterns = array();
-        $properties = array();
+        $browsers = [];
+        $userAgents = [];
+        $patterns = [];
+        $properties = [];
 
         $this->_cacheLoaded = false;
 
@@ -1042,7 +1043,7 @@ class Browscap
         $content = preg_replace('/<[?%].*[?%]>/', '', $content);
 
         // replace opening and closing php and asp tags
-        return str_replace(array('<?', '<%', '?>', '%>'), '', $content);
+        return str_replace(['<?', '<%', '?>', '%>'], '', $content);
     }
 
     /**

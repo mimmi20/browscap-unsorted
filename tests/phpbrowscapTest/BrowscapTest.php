@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace phpbrowscapTest;
 
@@ -43,13 +44,14 @@ class BrowscapTest extends TestCase
     /**
      * @return void
      */
-    public function testConstructorFailsWithoutPath()
+    public function testConstructorFailsWithoutPath() : void
     {
         if (method_exists($this, 'expectException')) {
             $this->expectException('\phpbrowscap\Exception');
             $this->expectExceptionMessage('You have to provide a path to read/store the browscap cache file');
         } else {
-            $this->setExpectedException('\phpbrowscap\Exception', 'You have to provide a path to read/store the browscap cache file');
+            $this->expectException('\phpbrowscap\Exception');
+            $this->expectExceptionMessage('You have to provide a path to read/store the browscap cache file');
         }
 
         new Browscap();
@@ -58,19 +60,20 @@ class BrowscapTest extends TestCase
     /**
      * @return void
      */
-    public function testConstructorFailsWithNullPath()
+    public function testConstructorFailsWithNullPath() : void
     {
         if (method_exists($this, 'expectException')) {
             $this->expectException('\phpbrowscap\Exception');
             $this->expectExceptionMessage('You have to provide a path to read/store the browscap cache file');
         } else {
-            $this->setExpectedException('\phpbrowscap\Exception', 'You have to provide a path to read/store the browscap cache file');
+            $this->expectException('\phpbrowscap\Exception');
+            $this->expectExceptionMessage('You have to provide a path to read/store the browscap cache file');
         }
 
         new Browscap(null);
     }
 
-    public function testConstructorFailsWithInvalidPath()
+    public function testConstructorFailsWithInvalidPath() : void
     {
         $path = '/abc/test';
 
@@ -78,13 +81,14 @@ class BrowscapTest extends TestCase
             $this->expectException('\phpbrowscap\Exception');
             $this->expectExceptionMessage('The cache path ' . $path . ' is invalid. Are you sure that it exists and that you have permission to access it?');
         } else {
-            $this->setExpectedException('\phpbrowscap\Exception', 'The cache path ' . $path . ' is invalid. Are you sure that it exists and that you have permission to access it?');
+            $this->expectException('\phpbrowscap\Exception');
+            $this->expectExceptionMessage('The cache path ' . $path . ' is invalid. Are you sure that it exists and that you have permission to access it?');
         }
 
         new Browscap($path);
     }
 
-    public function testProxyAutoDetection()
+    public function testProxyAutoDetection() : void
     {
         $browscap = $this->createBrowscap();
 
@@ -105,7 +109,7 @@ class BrowscapTest extends TestCase
         self::assertTrue($options['ftp']['request_fulluri']);
     }
 
-    public function testAddProxySettings()
+    public function testAddProxySettings() : void
     {
         $browscap = $this->createBrowscap();
 
@@ -116,7 +120,7 @@ class BrowscapTest extends TestCase
         self::assertTrue($options['http']['request_fulluri']);
     }
 
-    public function testAddProxySettingsWithUsername()
+    public function testAddProxySettingsWithUsername() : void
     {
         $browscap = $this->createBrowscap();
 
@@ -128,7 +132,7 @@ class BrowscapTest extends TestCase
         self::assertTrue($options['http']['request_fulluri']);
     }
 
-    public function testClearProxySettings()
+    public function testClearProxySettings() : void
     {
         $browscap = $this->createBrowscap();
 
@@ -141,17 +145,17 @@ class BrowscapTest extends TestCase
         $clearedWrappers = $browscap->clearProxySettings();
         $options = $browscap->getStreamContextOptions();
 
-        $defaultStreamContextOptions = array(
-            'http' => array(
+        $defaultStreamContextOptions = [
+            'http' => [
                 'timeout' => $browscap->timeout,
-            ),
-        );
+            ],
+        ];
 
         self::assertEquals($defaultStreamContextOptions, $options);
-        self::assertEquals($clearedWrappers, array('http'));
+        self::assertEquals($clearedWrappers, ['http']);
     }
 
-    public function testGetStreamContext()
+    public function testGetStreamContext() : void
     {
         $cacheDir = $this->createCacheDir();
 
@@ -165,19 +169,20 @@ class BrowscapTest extends TestCase
 
         $resource = $method->invoke($browscap);
 
-        self::assertInternalType('resource', $resource);
+        self::assertIsResource($resource);
     }
 
     /**
      * @return void
      */
-    public function testGetLocalMTimeFails()
+    public function testGetLocalMTimeFails() : void
     {
         if (method_exists($this, 'expectException')) {
             $this->expectException('\phpbrowscap\Exception');
             $this->expectExceptionMessage('Local file is not readable');
         } else {
-            $this->setExpectedException('\phpbrowscap\Exception', 'Local file is not readable');
+            $this->expectException('\phpbrowscap\Exception');
+            $this->expectExceptionMessage('Local file is not readable');
         }
 
         $cacheDir = $this->createCacheDir();
@@ -191,7 +196,7 @@ class BrowscapTest extends TestCase
         $method->invoke($browscap);
     }
 
-    public function testGetLocalMTime()
+    public function testGetLocalMTime() : void
     {
         $cacheDir = $this->createCacheDir();
 
@@ -211,17 +216,18 @@ class BrowscapTest extends TestCase
     /**
      * @return void
      */
-    public function testGetRemoteMTimeFails()
+    public function testGetRemoteMTimeFails() : void
     {
         if (method_exists($this, 'expectException')) {
             $this->expectException('\phpbrowscap\Exception');
             $this->expectExceptionMessage('Bad datetime format from http://browscap.org/version');
         } else {
-            $this->setExpectedException('\phpbrowscap\Exception', 'Bad datetime format from http://browscap.org/version');
+            $this->expectException('\phpbrowscap\Exception');
+            $this->expectExceptionMessage('Bad datetime format from http://browscap.org/version');
         }
 
         $browscap = $this->getMockBuilder('\phpbrowscap\Browscap')
-            ->setMethods(array('_getRemoteData'))
+            ->setMethods(['_getRemoteData'])
             ->disableOriginalConstructor()
             ->getMock();
         $browscap->expects(self::any())
@@ -235,12 +241,12 @@ class BrowscapTest extends TestCase
         $method->invoke($browscap);
     }
 
-    public function testGetRemoteMTime()
+    public function testGetRemoteMTime() : void
     {
         $expected = 'Fri, 29 Dec 2017 23:06:30 +0000';
 
         $browscap = $this->getMockBuilder('\phpbrowscap\Browscap')
-            ->setMethods(array('_getRemoteData'))
+            ->setMethods(['_getRemoteData'])
             ->disableOriginalConstructor()
             ->getMock();
         $browscap->expects(self::any())
@@ -259,7 +265,7 @@ class BrowscapTest extends TestCase
     /**
      * @group testCache
      */
-    public function testArray2string()
+    public function testArray2string() : void
     {
         $cacheDir = $this->createCacheDir();
 
@@ -275,12 +281,12 @@ class BrowscapTest extends TestCase
             $xpected,
             $method->invoke(
                 $browscap,
-                array('a' => 1, 'b' => 'abc', '1.0' => 'cde', 1 => 'def', 2 => array('abc', 1, 2))
+                ['a' => 1, 'b' => 'abc', '1.0' => 'cde', 1 => 'def', 2 => ['abc', 1, 2]]
             )
         );
     }
 
-    public function testGetUpdateMethodReturnsFopen()
+    public function testGetUpdateMethodReturnsFopen() : void
     {
         $cacheDir = $this->createCacheDir();
 
@@ -296,7 +302,7 @@ class BrowscapTest extends TestCase
         self::assertSame($expected, $method->invoke($browscap));
     }
 
-    public function testGetUpdateMethodReturnsLocal()
+    public function testGetUpdateMethodReturnsLocal() : void
     {
         $cacheDir = $this->createCacheDir();
 
@@ -313,7 +319,7 @@ class BrowscapTest extends TestCase
         self::assertSame($expected, $method->invoke($browscap));
     }
 
-    public function testGetUserAgent()
+    public function testGetUserAgent() : void
     {
         $cacheDir = $this->createCacheDir();
 
@@ -328,7 +334,7 @@ class BrowscapTest extends TestCase
         self::assertContains($expected, $method->invoke($browscap));
     }
 
-    public function testPregQuote()
+    public function testPregQuote() : void
     {
         $cacheDir = $this->createCacheDir();
 
@@ -343,7 +349,7 @@ class BrowscapTest extends TestCase
         self::assertSame($expected, $method->invoke($browscap, 'Mozilla/?.0 (compatible; Ask Jeeves/Teoma*)'));
     }
 
-    public function testPregUnQuote()
+    public function testPregUnQuote() : void
     {
         $cacheDir = $this->createCacheDir();
 
@@ -357,7 +363,7 @@ class BrowscapTest extends TestCase
 
         self::assertSame(
             $expected,
-            $method->invoke($browscap, '@^Mozilla/.\.0 \(compatible; Ask Jeeves/Teoma.*\)$@', array())
+            $method->invoke($browscap, '@^Mozilla/.\.0 \(compatible; Ask Jeeves/Teoma.*\)$@', [])
         );
     }
 
@@ -367,7 +373,7 @@ class BrowscapTest extends TestCase
      * @param mixed $content
      * @param mixed $expected
      */
-    public function testSanitizeContent($content, $expected)
+    public function testSanitizeContent($content, $expected) : void
     {
         $cacheDir = $this->createCacheDir();
 
@@ -382,8 +388,8 @@ class BrowscapTest extends TestCase
 
     public function dataSanitizeContent()
     {
-        return array(
-            array(
+        return [
+            [
                 '[GJK_Browscap_Version]
 Version=6004
 Released=Wed, 10 Jun 2015 07:48:33 +0000
@@ -394,8 +400,8 @@ Version=6004
 Released=Wed, 10 Jun 2015 07:48:33 +0000
 Format=asp\'
 Type=',
-            ),
-            array(
+            ],
+            [
                 '[GJK_Browscap_Version]
 Version=6004
 Released=Wed, 10 Jun 2015 07:48:33 +0000
@@ -406,8 +412,8 @@ Version=6004
 Released=Wed, 10 Jun 2015 07:48:33 +0000
 Format=asp\'php
 Type=',
-            ),
-            array(
+            ],
+            [
                 '[GJK_Browscap_Version]
 Version=6004
 Released=Wed, 10 Jun 2015 07:48:33 +0000
@@ -418,8 +424,8 @@ Version=6004
 Released=Wed, 10 Jun 2015 07:48:33 +0000
 Format=asp\'
 Type=',
-            ),
-            array(
+            ],
+            [
                 '[GJK_Browscap_Version]
 Version=6004
 Released=Wed, 10 Jun 2015 07:48:33 +0000
@@ -430,8 +436,8 @@ Version=6004
 Released=Wed, 10 Jun 2015 07:48:33 +0000
 Format=asp\'
 Type=',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -443,14 +449,14 @@ Type=',
     {
         $iterator = new \RecursiveDirectoryIterator('tests/data/');
 
-        $fileContents = array();
+        $fileContents = [];
         foreach (new \RecursiveIteratorIterator($iterator) as $file) {
             /** @var \SplFileInfo $file */
             if (!$file->isFile() || 'ini' !== $file->getExtension()) {
                 continue;
             }
 
-            $fileContents[$file->getFilename()] = array(file_get_contents($file->getPathname()));
+            $fileContents[$file->getFilename()] = [file_get_contents($file->getPathname())];
         }
 
         return $fileContents;
@@ -474,7 +480,7 @@ Type=',
         array $patterns,
         $version,
         $expected
-    ) {
+    ) : void {
         $cacheDir = $this->createCacheDir();
 
         $class = new ReflectionClass('\phpbrowscap\Browscap');
@@ -516,17 +522,17 @@ Type=',
      */
     public function dataBuildCache()
     {
-        $data = array();
+        $data = [];
         for ($i = 1; 2 >= $i; ++$i) {
             // array $properties, array $browsers, array $userAgents, array $patterns, $version, $expected
-            $data[$i] = array(
+            $data[$i] = [
                 'properties' => require 'tests/data/buildCache/' . $i . '.properties.php',
                 'browsers' => require 'tests/data/buildCache/' . $i . '.browsers.php',
                 'userAgents' => require 'tests/data/buildCache/' . $i . '.userAgents.php',
                 'patterns' => require 'tests/data/buildCache/' . $i . '.patterns.php',
                 'version' => require 'tests/data/buildCache/' . $i . '.version.php',
                 'expected' => file_get_contents('tests/data/buildCache/' . $i . '.expected.php'),
-            );
+            ];
         }
 
         return $data;
