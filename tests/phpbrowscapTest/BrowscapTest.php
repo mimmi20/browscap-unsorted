@@ -199,13 +199,15 @@ class BrowscapTest extends TestCase
      */
     public function testGetRemoteMTimeFails() : void
     {
-        $browscap = $this->getMockBuilder('\phpbrowscap\Browscap')
+        $browscap = $this->getMockBuilder(\phpbrowscap\Browscap::class)
             ->setMethods(['_getRemoteData'])
             ->disableOriginalConstructor()
             ->getMock();
         $browscap->expects(self::any())
             ->method('_getRemoteData')
-            ->willReturn(null);
+            ->willReturn('');
+
+        $browscap->localFile = __DIR__;
 
         $class = new ReflectionClass($browscap);
         $method = $class->getMethod('_getRemoteMTime');
@@ -221,7 +223,7 @@ class BrowscapTest extends TestCase
     {
         $expected = 'Fri, 29 Dec 2017 23:06:30 +0000';
 
-        $browscap = $this->getMockBuilder('\phpbrowscap\Browscap')
+        $browscap = $this->getMockBuilder(\phpbrowscap\Browscap::class)
             ->setMethods(['_getRemoteData'])
             ->disableOriginalConstructor()
             ->getMock();
