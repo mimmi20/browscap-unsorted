@@ -25,57 +25,58 @@ class CompareBrowscapWithOriginalTest extends \PHPUnit\Framework\TestCase
      * @var array
      */
     private $properties = array(
-        'browser_name_regex'          => null,
-        'browser_name_pattern'        => null,
-        'Parent'                      => null,
-        'Comment'                     => 'Default Browser',
-        'Browser'                     => 'Default Browser',
-        'Browser_Type'                => 'unknown',
-        'Browser_Bits'                => '0',
-        'Browser_Maker'               => 'unknown',
-        'Browser_Modus'               => 'unknown',
-        'Version'                     => '0.0',
-        'MajorVer'                    => '0',
-        'MinorVer'                    => '0',
-        'Platform'                    => 'unknown',
-        'Platform_Version'            => 'unknown',
-        'Platform_Description'        => 'unknown',
-        'Platform_Bits'               => '0',
-        'Platform_Maker'              => 'unknown',
-        'Alpha'                       => 'false',
-        'Beta'                        => 'false',
-        'Win16'                       => 'false',
-        'Win32'                       => 'false',
-        'Win64'                       => 'false',
-        'Frames'                      => 'false',
-        'IFrames'                     => 'false',
-        'Tables'                      => 'false',
-        'Cookies'                     => 'false',
-        'BackgroundSounds'            => 'false',
-        'JavaScript'                  => 'false',
-        'VBScript'                    => 'false',
-        'JavaApplets'                 => 'false',
-        'ActiveXControls'             => 'false',
-        'isMobileDevice'              => 'false',
-        'isTablet'                    => 'false',
-        'isSyndicationReader'         => 'false',
-        'Crawler'                     => 'false',
-        'CssVersion'                  => '0',
-        'AolVersion'                  => '0',
-        'Device_Name'                 => 'unknown',
-        'Device_Maker'                => 'unknown',
-        'Device_Type'                 => 'unknown',
-        'Device_Pointing_Method'      => 'unknown',
-        'Device_Code_Name'            => 'unknown',
-        'Device_Brand_Name'           => 'unknown',
-        'RenderingEngine_Name'        => 'unknown',
-        'RenderingEngine_Version'     => 'unknown',
+        'browser_name_regex' => null,
+        'browser_name_pattern' => null,
+        'Parent' => null,
+        'Comment' => 'Default Browser',
+        'Browser' => 'Default Browser',
+        'Browser_Type' => 'unknown',
+        'Browser_Bits' => '0',
+        'Browser_Maker' => 'unknown',
+        'Browser_Modus' => 'unknown',
+        'Version' => '0.0',
+        'MajorVer' => '0',
+        'MinorVer' => '0',
+        'Platform' => 'unknown',
+        'Platform_Version' => 'unknown',
+        'Platform_Description' => 'unknown',
+        'Platform_Bits' => '0',
+        'Platform_Maker' => 'unknown',
+        'Alpha' => 'false',
+        'Beta' => 'false',
+        'Win16' => 'false',
+        'Win32' => 'false',
+        'Win64' => 'false',
+        'Frames' => 'false',
+        'IFrames' => 'false',
+        'Tables' => 'false',
+        'Cookies' => 'false',
+        'BackgroundSounds' => 'false',
+        'JavaScript' => 'false',
+        'VBScript' => 'false',
+        'JavaApplets' => 'false',
+        'ActiveXControls' => 'false',
+        'isMobileDevice' => 'false',
+        'isTablet' => 'false',
+        'isSyndicationReader' => 'false',
+        'Crawler' => 'false',
+        'CssVersion' => '0',
+        'AolVersion' => '0',
+        'Device_Name' => 'unknown',
+        'Device_Maker' => 'unknown',
+        'Device_Type' => 'unknown',
+        'Device_Pointing_Method' => 'unknown',
+        'Device_Code_Name' => 'unknown',
+        'Device_Brand_Name' => 'unknown',
+        'RenderingEngine_Name' => 'unknown',
+        'RenderingEngine_Version' => 'unknown',
         'RenderingEngine_Description' => 'unknown',
-        'RenderingEngine_Maker'       => 'unknown',
+        'RenderingEngine_Maker' => 'unknown',
     );
 
     /**
      * This method is called before the first test of this test class is run.
+     *
      * @throws \phpbrowscap\Exception
      */
     public static function setUpBeforeClass()
@@ -96,8 +97,8 @@ class CompareBrowscapWithOriginalTest extends \PHPUnit\Framework\TestCase
             self::markTestSkipped('browscap not defined in php.ini');
         }
 
-        self::$object               = new Browscap(self::$cacheDir);
-        self::$object->localFile    = $objectIniPath;
+        self::$object = new Browscap(self::$cacheDir);
+        self::$object->localFile = $objectIniPath;
         self::$object->doAutoUpdate = false;
         self::$object->updateCache();
     }
@@ -110,16 +111,12 @@ class CompareBrowscapWithOriginalTest extends \PHPUnit\Framework\TestCase
     public function testCheckProperties()
     {
         $libProperties = get_object_vars(get_browser('x'));
-        $bcProperties  = get_object_vars(self::$object->getBrowser('x'));
+        $bcProperties = get_object_vars(self::$object->getBrowser('x'));
 
-        unset($bcProperties['Parents']);
-        unset($bcProperties['browser_name']);
-        unset($libProperties['browser_name']);
-        unset($bcProperties['RenderingEngine_Description']);
-        unset($libProperties['renderingengine_description']);
+        unset($bcProperties['Parents'], $bcProperties['browser_name'], $libProperties['browser_name'], $bcProperties['RenderingEngine_Description'], $libProperties['renderingengine_description']);
 
         $libPropertyKeys = array_map('strtolower', array_keys($libProperties));
-        $bcPropertyKeys  = array_map('strtolower', array_keys($bcProperties));
+        $bcPropertyKeys = array_map('strtolower', array_keys($bcProperties));
 
         self::assertEquals($libPropertyKeys, $bcPropertyKeys);
 
@@ -133,9 +130,9 @@ class CompareBrowscapWithOriginalTest extends \PHPUnit\Framework\TestCase
             unset($libProperties[strtolower($bcProp)]);
         }
 
-        self::assertSame(
+        self::assertCount(
             0,
-            count($libProperties),
+            $libProperties,
             'There are ' . count($libProperties) . '(' . implode(', ', array_keys($libProperties))
             . ') properties in get_browser that do not match those in Browscap.'
         );
@@ -153,7 +150,7 @@ class CompareBrowscapWithOriginalTest extends \PHPUnit\Framework\TestCase
     public function testCompare($userAgent)
     {
         $libResult = get_browser($userAgent);
-        $bcResult  = self::$object->getBrowser($userAgent);
+        $bcResult = self::$object->getBrowser($userAgent);
 
         $doNotCheck = array('browser_name_regex', 'browser_name_pattern', 'Parent', 'RenderingEngine_Description');
 
@@ -165,14 +162,14 @@ class CompareBrowscapWithOriginalTest extends \PHPUnit\Framework\TestCase
             $libProp = strtolower($bcProp);
 
             $libValue = (string) $libResult->{$libProp};
-            $bcValue  = (string) $bcResult->{$bcProp};
+            $bcValue = (string) $bcResult->{$bcProp};
 
             self::assertSame(
                 $libValue,
                 $bcValue,
                 'Expected actual "' . $bcProp . '" to be "' . (string) $libValue . '" (was "'
                 . (string) $bcValue
-                . '"; used pattern: ' . (string) $bcResult->browser_name_pattern .')'
+                . '"; used pattern: ' . (string) $bcResult->browser_name_pattern . ')'
             );
         }
     }

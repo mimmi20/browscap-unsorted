@@ -29,12 +29,13 @@ use phpbrowscap\Browscap;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @package    Browscap
- * @author     Vítor Brandão <noisebleed@noiselabs.org>
  * @copyright  Copyright (c) 2006-2012 Jonathan Stoppani
+ *
  * @version    1.0
+ *
  * @license    http://www.opensource.org/licenses/MIT MIT License
- * @link       https://github.com/GaretJax/phpbrowscap/
+ *
+ * @see       https://github.com/GaretJax/phpbrowscap/
  */
 class TestCase extends \PHPUnit\Framework\TestCase
 {
@@ -45,7 +46,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function createCacheDir()
     {
-        $cacheDir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'browscap_testing';
+        $cacheDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'browscap_testing';
 
         if (!is_dir($cacheDir)) {
             if (false === @mkdir($cacheDir, 0777, true)) {

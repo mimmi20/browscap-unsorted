@@ -30,12 +30,13 @@ use ReflectionClass;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @package    Browscap
- * @author     Vítor Brandão <noisebleed@noiselabs.org>
  * @copyright  Copyright (c) 2006-2012 Jonathan Stoppani
+ *
  * @version    1.0
+ *
  * @license    http://www.opensource.org/licenses/MIT MIT License
- * @link       https://github.com/GaretJax/phpbrowscap/
+ *
+ * @see       https://github.com/GaretJax/phpbrowscap/
  */
 class BrowscapTest extends TestCase
 {
@@ -69,9 +70,6 @@ class BrowscapTest extends TestCase
         new Browscap(null);
     }
 
-    /**
-     *
-     */
     public function testConstructorFailsWithInvalidPath()
     {
         $path = '/abc/test';
@@ -141,15 +139,15 @@ class BrowscapTest extends TestCase
         self::assertTrue($options['http']['request_fulluri']);
 
         $clearedWrappers = $browscap->clearProxySettings();
-        $options         = $browscap->getStreamContextOptions();
+        $options = $browscap->getStreamContextOptions();
 
         $defaultStreamContextOptions = array(
             'http' => array(
                 'timeout' => $browscap->timeout,
-            )
+            ),
         );
 
-        $this->assertEquals($defaultStreamContextOptions, $options);
+        self::assertEquals($defaultStreamContextOptions, $options);
         self::assertEquals($clearedWrappers, array('http'));
     }
 
@@ -157,7 +155,7 @@ class BrowscapTest extends TestCase
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
+        $class = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getStreamContext');
         $method->setAccessible(true);
 
@@ -167,7 +165,7 @@ class BrowscapTest extends TestCase
 
         $resource = $method->invoke($browscap);
 
-        self::assertTrue(is_resource($resource));
+        self::assertInternalType('resource', $resource);
     }
 
     /**
@@ -184,7 +182,7 @@ class BrowscapTest extends TestCase
 
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
+        $class = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getLocalMTime');
         $method->setAccessible(true);
 
@@ -193,21 +191,18 @@ class BrowscapTest extends TestCase
         $method->invoke($browscap);
     }
 
-    /**
-     *
-     */
     public function testGetLocalMTime()
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
+        $class = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getLocalMTime');
         $method->setAccessible(true);
 
-        $browscap            = new Browscap($cacheDir);
+        $browscap = new Browscap($cacheDir);
         $browscap->localFile = __FILE__;
 
-        $mtime    = $method->invoke($browscap);
+        $mtime = $method->invoke($browscap);
         $expected = filemtime(__FILE__);
 
         self::assertSame($expected, $mtime);
@@ -231,19 +226,15 @@ class BrowscapTest extends TestCase
             ->getMock();
         $browscap->expects(self::any())
             ->method('_getRemoteData')
-            ->will(self::returnValue(null))
-        ;
+            ->willReturn(null);
 
-        $class  = new ReflectionClass($browscap);
+        $class = new ReflectionClass($browscap);
         $method = $class->getMethod('_getRemoteMTime');
         $method->setAccessible(true);
 
         $method->invoke($browscap);
     }
 
-    /**
-     *
-     */
     public function testGetRemoteMTime()
     {
         $expected = 'Fri, 29 Dec 2017 23:06:30 +0000';
@@ -254,10 +245,9 @@ class BrowscapTest extends TestCase
             ->getMock();
         $browscap->expects(self::any())
             ->method('_getRemoteData')
-            ->will(self::returnValue($expected))
-        ;
+            ->willReturn($expected);
 
-        $class  = new ReflectionClass($browscap);
+        $class = new ReflectionClass($browscap);
         $method = $class->getMethod('_getRemoteMTime');
         $method->setAccessible(true);
 
@@ -273,7 +263,7 @@ class BrowscapTest extends TestCase
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
+        $class = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_array2string');
         $method->setAccessible(true);
 
@@ -290,18 +280,15 @@ class BrowscapTest extends TestCase
         );
     }
 
-    /**
-     *
-     */
     public function testGetUpdateMethodReturnsFopen()
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
+        $class = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getUpdateMethod');
         $method->setAccessible(true);
 
-        $browscap               = new Browscap($cacheDir);
+        $browscap = new Browscap($cacheDir);
         $browscap->updateMethod = null;
 
         $expected = Browscap::UPDATE_FOPEN;
@@ -309,34 +296,28 @@ class BrowscapTest extends TestCase
         self::assertSame($expected, $method->invoke($browscap));
     }
 
-    /**
-     *
-     */
     public function testGetUpdateMethodReturnsLocal()
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
+        $class = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getUpdateMethod');
         $method->setAccessible(true);
 
-        $browscap               = new Browscap($cacheDir);
+        $browscap = new Browscap($cacheDir);
         $browscap->updateMethod = null;
-        $browscap->localFile    = __FILE__;
+        $browscap->localFile = __FILE__;
 
         $expected = Browscap::UPDATE_LOCAL;
 
         self::assertSame($expected, $method->invoke($browscap));
     }
 
-    /**
-     *
-     */
     public function testGetUserAgent()
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
+        $class = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_getUserAgent');
         $method->setAccessible(true);
 
@@ -347,14 +328,11 @@ class BrowscapTest extends TestCase
         self::assertContains($expected, $method->invoke($browscap));
     }
 
-    /**
-     *
-     */
     public function testPregQuote()
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
+        $class = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_pregQuote');
         $method->setAccessible(true);
 
@@ -365,14 +343,11 @@ class BrowscapTest extends TestCase
         self::assertSame($expected, $method->invoke($browscap, 'Mozilla/?.0 (compatible; Ask Jeeves/Teoma*)'));
     }
 
-    /**
-     *
-     */
     public function testPregUnQuote()
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
+        $class = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_pregUnQuote');
         $method->setAccessible(true);
 
@@ -383,18 +358,20 @@ class BrowscapTest extends TestCase
         self::assertSame(
             $expected,
             $method->invoke($browscap, '@^Mozilla/.\.0 \(compatible; Ask Jeeves/Teoma.*\)$@', array())
-        )
-        ;
+        );
     }
 
     /**
      * @dataProvider dataSanitizeContent
+     *
+     * @param mixed $content
+     * @param mixed $expected
      */
     public function testSanitizeContent($content, $expected)
     {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
+        $class = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('sanitizeContent');
         $method->setAccessible(true);
 
@@ -468,8 +445,8 @@ Type=',
 
         $fileContents = array();
         foreach (new \RecursiveIteratorIterator($iterator) as $file) {
-            /** @var $file \SplFileInfo */
-            if (!$file->isFile() || $file->getExtension() !== 'ini') {
+            /** @var \SplFileInfo $file */
+            if (!$file->isFile() || 'ini' !== $file->getExtension()) {
                 continue;
             }
 
@@ -500,7 +477,7 @@ Type=',
     ) {
         $cacheDir = $this->createCacheDir();
 
-        $class  = new ReflectionClass('\phpbrowscap\Browscap');
+        $class = new ReflectionClass('\phpbrowscap\Browscap');
         $method = $class->getMethod('_buildCache');
         $method->setAccessible(true);
 
@@ -540,15 +517,15 @@ Type=',
     public function dataBuildCache()
     {
         $data = array();
-        for ($i = 1; $i <= 2; $i++) {
+        for ($i = 1; 2 >= $i; ++$i) {
             // array $properties, array $browsers, array $userAgents, array $patterns, $version, $expected
             $data[$i] = array(
                 'properties' => require 'tests/data/buildCache/' . $i . '.properties.php',
-                'browsers'   => require 'tests/data/buildCache/' . $i . '.browsers.php',
+                'browsers' => require 'tests/data/buildCache/' . $i . '.browsers.php',
                 'userAgents' => require 'tests/data/buildCache/' . $i . '.userAgents.php',
-                'patterns'   => require 'tests/data/buildCache/' . $i . '.patterns.php',
-                'version'    => require 'tests/data/buildCache/' . $i . '.version.php',
-                'expected'   => file_get_contents('tests/data/buildCache/' . $i . '.expected.php'),
+                'patterns' => require 'tests/data/buildCache/' . $i . '.patterns.php',
+                'version' => require 'tests/data/buildCache/' . $i . '.version.php',
+                'expected' => file_get_contents('tests/data/buildCache/' . $i . '.expected.php'),
             );
         }
 
