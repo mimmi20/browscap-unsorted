@@ -46,13 +46,8 @@ class BrowscapTest extends TestCase
      */
     public function testConstructorFailsWithoutPath() : void
     {
-        if (method_exists($this, 'expectException')) {
-            $this->expectException('\phpbrowscap\Exception');
-            $this->expectExceptionMessage('You have to provide a path to read/store the browscap cache file');
-        } else {
-            $this->expectException('\phpbrowscap\Exception');
-            $this->expectExceptionMessage('You have to provide a path to read/store the browscap cache file');
-        }
+        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectExceptionMessage('You have to provide a path to read/store the browscap cache file');
 
         new Browscap();
     }
@@ -62,13 +57,8 @@ class BrowscapTest extends TestCase
      */
     public function testConstructorFailsWithNullPath() : void
     {
-        if (method_exists($this, 'expectException')) {
-            $this->expectException('\phpbrowscap\Exception');
-            $this->expectExceptionMessage('You have to provide a path to read/store the browscap cache file');
-        } else {
-            $this->expectException('\phpbrowscap\Exception');
-            $this->expectExceptionMessage('You have to provide a path to read/store the browscap cache file');
-        }
+        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectExceptionMessage('You have to provide a path to read/store the browscap cache file');
 
         new Browscap(null);
     }
@@ -77,13 +67,8 @@ class BrowscapTest extends TestCase
     {
         $path = '/abc/test';
 
-        if (method_exists($this, 'expectException')) {
-            $this->expectException('\phpbrowscap\Exception');
-            $this->expectExceptionMessage('The cache path ' . $path . ' is invalid. Are you sure that it exists and that you have permission to access it?');
-        } else {
-            $this->expectException('\phpbrowscap\Exception');
-            $this->expectExceptionMessage('The cache path ' . $path . ' is invalid. Are you sure that it exists and that you have permission to access it?');
-        }
+        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectExceptionMessage('The cache path ' . $path . ' is invalid. Are you sure that it exists and that you have permission to access it?');
 
         new Browscap($path);
     }
@@ -177,14 +162,6 @@ class BrowscapTest extends TestCase
      */
     public function testGetLocalMTimeFails() : void
     {
-        if (method_exists($this, 'expectException')) {
-            $this->expectException('\phpbrowscap\Exception');
-            $this->expectExceptionMessage('Local file is not readable');
-        } else {
-            $this->expectException('\phpbrowscap\Exception');
-            $this->expectExceptionMessage('Local file is not readable');
-        }
-
         $cacheDir = $this->createCacheDir();
 
         $class = new ReflectionClass('\phpbrowscap\Browscap');
@@ -192,6 +169,10 @@ class BrowscapTest extends TestCase
         $method->setAccessible(true);
 
         $browscap = new Browscap($cacheDir);
+        $browscap->localFile = __DIR__;
+
+        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectExceptionMessage('Local file is not readable');
 
         $method->invoke($browscap);
     }
@@ -218,14 +199,6 @@ class BrowscapTest extends TestCase
      */
     public function testGetRemoteMTimeFails() : void
     {
-        if (method_exists($this, 'expectException')) {
-            $this->expectException('\phpbrowscap\Exception');
-            $this->expectExceptionMessage('Bad datetime format from http://browscap.org/version');
-        } else {
-            $this->expectException('\phpbrowscap\Exception');
-            $this->expectExceptionMessage('Bad datetime format from http://browscap.org/version');
-        }
-
         $browscap = $this->getMockBuilder('\phpbrowscap\Browscap')
             ->setMethods(['_getRemoteData'])
             ->disableOriginalConstructor()
@@ -237,6 +210,9 @@ class BrowscapTest extends TestCase
         $class = new ReflectionClass($browscap);
         $method = $class->getMethod('_getRemoteMTime');
         $method->setAccessible(true);
+
+        $this->expectException(\phpbrowscap\Exception::class);
+        $this->expectExceptionMessage('Bad datetime format from http://browscap.org/version');
 
         $method->invoke($browscap);
     }
